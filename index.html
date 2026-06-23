@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SYSCORP – Payroll Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        :root {
+            --p: #0ea5e9;
+            --ph: #0284c7;
+            --s: #38bdf8;
+            --slate-50: #f8fafc;
+            --slate-100: #f1f5f9;
+            --slate-200: #e2e8f0;
+            --slate-300: #cbd5e1;
+            --slate-700: #334155;
+            --slate-800: #1e293b;
+            --slate-900: #0f172a;
+        }
+
+        body {
+            background-color: var(--slate-100);
+            font-family: 'Inter', sans-serif;
+            color: var(--slate-800);
+            margin: 0;
+            padding: 0;
+        }
+
+        /* ── DASHBOARD ── */
+        .dash-wrap {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .dash-card {
+            background: #fff;
+            border-radius: 16px;
+            border: 1px solid var(--slate-200);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, .06);
+            padding: 32px;
+        }
+
+        .search-box .form-control {
+            border-color: var(--slate-200);
+            background: var(--slate-50);
+            font-size: .88rem;
+        }
+
+        .search-box .form-control:focus {
+            border-color: var(--p);
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, .15);
+            background: #fff;
+        }
+
+        .search-box .input-group-text {
+            background: var(--slate-50);
+            border-color: var(--slate-200);
+        }
+
+        .emp-table thead th {
+            font-size: .75rem;
+            background: var(--slate-50);
+            text-transform: uppercase;
+            letter-spacing: .8px;
+            color: #64748b;
+            padding: 13px 16px;
+            border-bottom: 1.5px solid var(--slate-200);
+        }
+
+        .emp-table tbody tr {
+            cursor: pointer;
+            transition: background .18s;
+            border-bottom: 1px solid rgba(226, 232, 240, .5);
+        }
+
+        .emp-table tbody tr:hover {
+            background: var(--slate-50);
+        }
+
+        .emp-table tbody td {
+            padding: 15px 16px;
+            font-size: .85rem;
+            vertical-align: middle;
+        }
+
+        .role-badge {
+            background: var(--slate-100);
+            color: var(--slate-700);
+            font-size: .72rem;
+            font-weight: 500;
+            padding: 4px 8px;
+            border-radius: 6px;
+            border: 1px solid var(--slate-200);
+        }
+
+        .btn-slip {
+            background: var(--p);
+            color: #fff;
+            border: none;
+            font-size: .75rem;
+            font-weight: 600;
+            padding: 7px 14px;
+            border-radius: 6px;
+            transition: all .2s;
+            cursor: pointer;
+        }
+
+        .btn-slip:hover {
+            background: var(--ph);
+            transform: translateY(-1px);
+        }
+
+        .pg-btn {
+            border: 1px solid var(--slate-200);
+            background: #fff;
+            color: var(--slate-700);
+            padding: 5px 11px;
+            font-size: .78rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all .2s;
+        }
+
+        .pg-btn:hover {
+            background: var(--slate-50);
+        }
+
+        .pg-btn.active {
+            background: var(--p);
+            color: #fff;
+            border-color: var(--p);
+        }
+
+        /* ── OVERLAY ── */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, .78);
+            backdrop-filter: blur(10px);
+            z-index: 1050;
+            display: none;
+            overflow-y: auto;
+            padding: 36px 20px;
+        }
+
+        .overlay.show {
+            display: block;
+        }
+
+        .ov-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .ov-bar {
+            width: 210mm;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+
+        .btn-back {
+            background: rgba(255, 255, 255, .13);
+            border: 1px solid rgba(255, 255, 255, .22);
+            color: #fff;
+            font-size: .84rem;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all .2s;
+        }
+
+        .btn-back:hover {
+            background: rgba(255, 255, 255, .23);
+            transform: translateX(-3px);
+        }
+
+        .btn-print {
+            background: var(--p);
+            border: none;
+            color: #fff;
+            font-size: .84rem;
+            font-weight: 600;
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all .2s;
+            box-shadow: 0 4px 12px rgba(14, 165, 233, .35);
+        }
+
+        .btn-print:hover {
+            background: var(--ph);
+            transform: translateY(-1px);
+        }
+
+        /* ── A4 SHEET ── */
+        #slip {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 20mm;
+            background: #fff;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, .25);
+            border-radius: 8px;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        /* Step-by-step animated sections */
+        .slip-section {
+            opacity: 0;
+            transform: translateY(15px);
+            transition: opacity .4s ease, transform .4s ease;
+        }
+
+        .slip-section.revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Slip Header styling */
+        .slip-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding-bottom: 12px;
+            border-bottom: 3px solid #1e293b;
+            margin-bottom: 24px;
+        }
+
+        .header-title-sys {
+            font-size: 2rem;
+            font-weight: 800;
+            line-height: 1;
+            color: #0f172a;
+            margin: 0;
+        }
+
+        .think-simple {
+            font-size: 0.85rem;
+            color: #475569;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+        .address-text {
+            font-size: 0.8rem;
+            color: #475569;
+            margin-top: 2px;
+        }
+
+        .payslip-month-title {
+            font-size: 0.85rem;
+            color: #64748b;
+            text-transform: capitalize;
+            margin: 0;
+        }
+
+        .payslip-month-val {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin: 0;
+            line-height: 1.1;
+        }
+
+        /* Employee Info rows */
+        .info-row {
+            display: flex;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .info-key {
+            width: 140px;
+            color: #475569;
+        }
+
+        .info-val {
+            color: #0f172a;
+            font-weight: 600;
+        }
+
+        /* Green Pay Card (Top right) */
+        .green-pay-box {
+            background-color: #f0fdf4;
+            border-left: 5px solid #16a34a;
+            padding: 20px;
+            border-radius: 4px 12px 12px 4px;
+        }
+
+        .large-pay-val {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .pay-subtext {
+            font-size: 0.8rem;
+            color: #475569;
+            margin-top: 2px;
+        }
+
+        .green-hr {
+            border-top: 1px solid #bbf7d0;
+            margin: 12px 0;
+            opacity: 1;
+        }
+
+        .pay-days-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: #374151;
+        }
+
+        /* Ledger Container (Earnings & Deductions side-by-side) */
+        .ledger-container {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            background-color: #ffffff;
+            overflow: hidden;
+        }
+
+        .ledger-side {
+            padding: 20px;
+        }
+
+        .ledger-header-row {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1.5px solid #e2e8f0;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+        }
+
+        .ledger-hdr-lbl {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #64748b;
+            letter-spacing: 0.5px;
+        }
+
+        .ledger-table {
+            width: 100%;
+            font-size: 0.9rem;
+            border-collapse: collapse;
+        }
+
+        .ledger-table td {
+            padding: 10px 0;
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        /* Totals Grey Bar */
+        .totals-row {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px 20px;
+            display: flex;
+            font-size: 0.9rem;
+        }
+
+        .totals-lbl {
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .totals-val {
+            font-weight: 700;
+        }
+
+        .text-primary-custom {
+            color: #2563eb;
+        }
+
+        .text-danger-custom {
+            color: #dc2626;
+        }
+
+        /* Green Highlights Bar (Total Net Payable) */
+        .net-payable-banner {
+            background-color: #e8f5e9;
+            border: 1px solid #c8e6c9;
+            border-radius: 8px;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .net-payable-title {
+            font-weight: 850;
+            font-size: 0.9rem;
+            color: #1b5e20;
+        }
+
+        .net-payable-subtitle {
+            font-size: 0.75rem;
+            color: #4e342e;
+            margin-top: 2px;
+        }
+
+        .net-payable-value {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #1b5e20;
+        }
+
+        /* Footer */
+        .slip-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding-top: 18px;
+            border-top: 1px solid var(--slate-200);
+            margin-top: 8px;
+        }
+
+        .words-label {
+            font-size: .6rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            margin-bottom: 4px;
+        }
+
+        .words-text {
+            font-size: .84rem;
+            font-weight: 600;
+            color: var(--slate-800);
+        }
+
+        .sig-box {
+            font-size: .65rem;
+            color: #64748b;
+            border: 1px dashed var(--slate-300);
+            border-radius: 6px;
+            padding: 6px 12px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .sig-note {
+            font-size: .52rem;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            color: #94a3b8;
+            margin-top: 4px;
+            text-align: right;
+        }
+
+        /* ── PRINT ── */
+        @media print {
+
+            .dash-wrap,
+            .ov-bar {
+                display: none !important;
+            }
+
+            .overlay {
+                position: absolute !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 100% !important;
+                height: auto !important;
+                background: transparent !important;
+                backdrop-filter: none !important;
+                padding: 0 !important;
+                display: block !important;
+                overflow: visible !important;
+            }
+
+            #slip {
+                position: absolute !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 210mm !important;
+                min-height: 297mm !important;
+                padding: 20mm !important;
+                margin: 0 !important;
+                box-shadow: none !important;
+                border-radius: 0 !important;
+                background: white !important;
+            }
+
+            .slip-section {
+                opacity: 1 !important;
+                transform: none !important;
+            }
+
+            .green-pay-box {
+                background-color: #f0fdf4 !important;
+                border-left: 5px solid #16a34a !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .ledger-container {
+                border: 1px solid #e2e8f0 !important;
+                background-color: #ffffff !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .totals-row {
+                background-color: #f8fafc !important;
+                border: 1px solid #e2e8f0 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .net-payable-banner {
+                background-color: #e8f5e9 !important;
+                border: 1px solid #c8e6c9 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .text-primary-custom {
+                color: #2563eb !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .text-danger-custom {
+                color: #dc2626 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+
+        @media (max-width: 992px) {
+
+            .ov-bar,
+            .overlay #slip {
+                width: 100% !important;
+            }
+
+            .overlay {
+                padding: 20px 10px;
+            }
+
+            #slip {
+                min-height: auto;
+                padding: 15mm 10mm;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .col-7,
+            .col-5 {
+                width: 100% !important;
+                margin-bottom: 15px;
+            }
+
+            .col-6 {
+                width: 100% !important;
+                margin-bottom: 20px;
+            }
+
+            .ledger-side:first-child {
+                border-right: none !important;
+                border-bottom: 1px solid #e2e8f0;
+            }
+
+            .totals-row .col-6:first-child {
+                border-right: none !important;
+                border-bottom: 1px solid #e2e8f0;
+                padding-bottom: 10px;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ═══ DASHBOARD ═══ -->
+    <div class="dash-wrap">
+        <div class="dash-card">
+            <div class="d-flex justify-content-between align-items-start mb-4">
+                <div>
+                    <img src="logo.png" alt="SYSCORP" style="height:40px;max-width:200px;object-fit:contain">
+                    <div style="font-size:.72rem;color:#64748b;margin-top:4px">// SOFTWARE DIVISION &amp; INFRASTRUCTURE</div>
+                </div>
+                <span id="page-label" class="badge bg-light text-dark border" style="font-size:.75rem">Page 1</span>
+            </div>
+
+            <div class="mb-4 search-box">
+                <div class="input-group">
+                    <span class="input-group-text border-end-0">
+                        <svg width="14" height="14" fill="#94a3b8" viewBox="0 0 16 16">
+                            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.118-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
+                        </svg>
+                    </span>
+                    <input type="text" id="q" class="form-control border-start-0" placeholder="Search by name or designation…" oninput="search(this.value)">
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table emp-table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Employee</th>
+                            <th>Role</th>
+                            <th class="text-end">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="emp-body"></tbody>
+                </table>
+            </div>
+            <div id="pg" class="d-flex justify-content-center gap-2 mt-4"></div>
+        </div>
+    </div>
+
+    <!-- ═══ OVERLAY ═══ -->
+    <div id="overlay" class="overlay">
+        <div class="ov-wrap">
+            <div class="ov-bar">
+                <button class="btn-back" onclick="closeSlip()">
+                    ← Back to Dashboard
+                </button>
+                <button class="btn-print" onclick="window.print()">
+                    🖨 Print Payslip
+                </button>
+            </div>
+
+            <div id="slip">
+
+                <!-- Step 1: Header -->
+                <div class="slip-section slip-head" id="sec-head">
+                    <div>
+                        <h2 class="header-title-sys">SYSCORP</h2>
+                        <div class="think-simple">&lt;Think Simple/&gt;</div>
+                        <div class="address-text">JIPMER Main road, Pondicherry-605008</div>
+                    </div>
+                    <div class="text-end">
+                        <p class="payslip-month-title">Payslip for Month</p>
+                        <p class="payslip-month-val" id="slip-month">March 2024</p>
+                    </div>
+                </div>
+
+                <!-- Step 2: Employee Info & Net Amount -->
+                <div class="slip-section row g-3 mb-4" id="sec-info">
+                    <div class="col-7">
+                        <div class="emp-summary-section">
+                            <h6 class="fw-bold mb-3" style="font-size: 0.9rem; letter-spacing: 0.5px; color: #1e293b;">EMPLOYEE SUMMARY</h6>
+                            <div class="info-row">
+                                <div class="info-key">Employee Name</div>
+                                <div class="info-val" id="info-name">-</div>
+                            </div>
+                            <div class="info-row">
+                                <div class="info-key">Designation</div>
+                                <div class="info-val" id="info-designation">-</div>
+                            </div>
+                            <div class="info-row">
+                                <div class="info-key">Employee id</div>
+                                <div class="info-val" id="info-id">-</div>
+                            </div>
+                            <div class="info-row">
+                                <div class="info-key">Date of Join</div>
+                                <div class="info-val" id="info-doj">-</div>
+                            </div>
+                            <div class="info-row">
+                                <div class="info-key">Pay Period</div>
+                                <div class="info-val" id="info-period">-</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-5">
+                        <div class="green-pay-box">
+                            <div class="large-pay-val" id="slip-net-top">₹ 0.00</div>
+                            <div class="pay-subtext">Employee Net Pay</div>
+                            <hr class="green-hr">
+                            <div class="pay-days-row">
+                                <span>Paid Day: <strong id="slip-paid">0</strong></span>
+                                <span>LOP Day: <strong id="slip-lop">0</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Earnings & Deductions Container -->
+                <div class="slip-section ledger-container mb-3" id="sec-ledger">
+                    <div class="row g-0">
+                        <!-- Earnings Col -->
+                        <div class="col-6 ledger-side border-end">
+                            <div class="ledger-header-row">
+                                <span class="ledger-hdr-lbl">EARNINGS</span>
+                                <span class="ledger-hdr-lbl text-end">AMOUNT</span>
+                            </div>
+                            <table class="ledger-table" id="slip-earnings">
+                                <!-- Dynamically populated -->
+                            </table>
+                        </div>
+                        <!-- Deductions Col -->
+                        <div class="col-6 ledger-side">
+                            <div class="ledger-header-row">
+                                <span class="ledger-hdr-lbl">DEDUCTIONS</span>
+                                <span class="ledger-hdr-lbl text-end">AMOUNT</span>
+                            </div>
+                            <table class="ledger-table" id="slip-deductions">
+                                <!-- Dynamically populated -->
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 4: Totals Bar -->
+                <div class="slip-section totals-row mb-3" id="sec-totals">
+                    <div class="row g-0 w-100 align-items-center">
+                        <!-- Earnings total -->
+                        <div class="col-6 d-flex justify-content-between pe-4">
+                            <span class="totals-lbl">GROSS EARNING</span>
+                            <span class="totals-val text-primary-custom" id="slip-gross">0</span>
+                        </div>
+                        <!-- Deductions total -->
+                        <div class="col-6 d-flex justify-content-between ps-4 border-start">
+                            <span class="totals-lbl">TOTAL DEDUCTION</span>
+                            <span class="totals-val text-danger-custom" id="slip-total-deduct">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 5: Net Payable Banner -->
+                <div class="slip-section net-payable-banner mb-4" id="sec-net">
+                    <div>
+                        <div class="net-payable-title">TOTAL NET PAYABLE</div>
+                        <div class="net-payable-subtitle">Gross earning - Total Deduction</div>
+                    </div>
+                    <div class="net-payable-value" id="slip-net-final">₹ 0.00</div>
+                </div>
+
+                <!-- Step 6: Footer -->
+                <div class="slip-section" id="sec-foot">
+                    <div class="slip-footer">
+                        <div>
+                            <div class="words-label">Net Salary In Words</div>
+                            <div class="words-text" id="words">—</div>
+                        </div>
+                        <div>
+                            <div class="sig-box">Digitally Signed by SYSCORP HR</div>
+                            <div class="sig-note">System Generated Document</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div><!-- #slip -->
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script>
+        const RAW = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSAOJIeY75b9atH-tHTZdJu8IpgbQh96bQ6km_HRqbpaUl0k0OX9JzO7AjRowuIrugEoa4871qSDdTG/pub?output=csv";
+        const URL = location.protocol === "file:" ? "https://api.allorigins.win/raw?url=" + encodeURIComponent(RAW) : RAW;
+
+        let all = [], filtered = [], page = 1, PER = 15, q = "";
+
+        Papa.parse(URL, {
+            download: true, header: true, skipEmptyLines: true, complete(r) {
+                all = r.data.filter(x => x["Emp Name"]);
+                filtered = [...all];
+                render();
+            }
+        });
+
+        function search(v) {
+            q = v.toLowerCase().trim(); page = 1;
+            filtered = !q ? [...all] : all.filter(e => (e["Emp Name"] || "").toLowerCase().includes(q) || (e["Designation"] || "").toLowerCase().includes(q) || (e["Emp.No"] || "").toString().includes(q));
+            render();
+        }
+
+        function render() {
+            const total = Math.ceil(filtered.length / PER) || 1;
+            document.getElementById("page-label").textContent = `Page ${page} of ${total}`;
+            const rows = filtered.slice((page - 1) * PER, page * PER);
+            const tb = document.getElementById("emp-body");
+            tb.innerHTML = rows.length ? rows.map(e => {
+                const i = all.indexOf(e);
+                return `<tr onclick="openSlip(${i})">
+      <td><code style="color:#64748b">#${e["Emp.No"]}</code></td>
+      <td><div class="fw-semibold">${e["Emp Name"]}</div><div style="font-size:.74rem;color:#94a3b8">${e["Status"] || ""}</div></td>
+      <td><span class="role-badge">${e["Designation"]}</span></td>
+      <td class="text-end"><button class="btn-slip" onclick="event.stopPropagation();openSlip(${i})">View Payslip</button></td>
+    </tr>`;
+            }).join("") : `<tr><td colspan="4" class="text-center text-muted py-5">No results found</td></tr>`;
+
+            const pg = document.getElementById("pg");
+            pg.innerHTML = total <= 1 ? "" : Array.from({ length: total }, (_, i) => `<button class="pg-btn${i + 1 === page ? " active" : ""}" onclick="goPage(${i + 1})">${i + 1}</button>`).join("");
+        }
+
+        function goPage(p) { page = p; render() }
+
+        function fmt(n) { return (parseFloat(n) || 0).toLocaleString("en-IN", { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }
+
+        function openSlip(idx) {
+            const e = all[idx];
+            if (!e) return;
+
+            // Fill header Month
+            const payPeriodStr = new Date().toLocaleString("en-IN", { month: "long", year: "numeric" });
+            document.getElementById("slip-month").textContent = payPeriodStr;
+            document.getElementById("info-period").textContent = payPeriodStr;
+
+            // Fill Summary
+            document.getElementById("info-name").textContent = e["Emp Name"] || "-";
+            document.getElementById("info-designation").textContent = e["Designation"] || "-";
+            document.getElementById("info-id").textContent = e["Emp.No"] || "-";
+            document.getElementById("info-doj").textContent = e["DOJ"] || "-";
+
+            // Fill Figures
+            document.getElementById("slip-lop").innerText = e["LOP"] || "0";
+            document.getElementById("slip-paid").innerText = e["Paid Days"] || "0";
+
+            // Earnings Table
+            const earns = ["Earned Basic", "Earned HRA", "Earned Conv.", "Earned Med.", "Earned Other"];
+            const earnLabels = {
+                "Earned Basic": "Basic",
+                "Earned HRA": "Hra",
+                "Earned Conv.": "Conveyance",
+                "Earned Med.": "Medical",
+                "Earned Other": "Other"
+            };
+            document.getElementById("slip-earnings").innerHTML = earns.map(x => `
+                <tr>
+                    <td class="ledger-item-name">${earnLabels[x] || x}</td>
+                    <td class="text-end ledger-item-val">${fmt(e[x])}</td>
+                </tr>
+            `).join('');
+
+            // Deductions Table
+            const deds = ["EPF", "ESI"];
+            document.getElementById("slip-deductions").innerHTML = deds.map(d => `
+                <tr>
+                    <td class="ledger-item-name">${d}</td>
+                    <td class="text-end ledger-item-val">${fmt(e[d])}</td>
+                </tr>
+            `).join('');
+
+            const gross = Math.round(parseFloat(e["Earned Gross"]) || 0);
+            const totalDeduct = Math.round(parseFloat(e["Total Deduct"]) || 0);
+            const net = gross - totalDeduct;
+
+            document.getElementById("slip-gross").innerText = gross.toLocaleString("en-IN");
+            document.getElementById("slip-total-deduct").innerText = totalDeduct.toLocaleString("en-IN");
+            document.getElementById("slip-net-top").innerText = "₹ " + net.toLocaleString("en-IN");
+            document.getElementById("slip-net-final").innerText = "₹ " + net.toLocaleString("en-IN");
+            document.getElementById("words").innerText = "Indian Rupees " + net.toLocaleString("en-IN") + " Only";
+
+            // Show overlay
+            const ov = document.getElementById("overlay");
+            ov.classList.add("show");
+            document.body.style.overflow = "hidden";
+
+            // Reset sections
+            const secs = ["sec-head", "sec-info", "sec-ledger", "sec-totals", "sec-net", "sec-foot"];
+            secs.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.remove("revealed");
+            });
+
+            // Step-by-step animated reveal
+            secs.forEach((id, i) => {
+                const el = document.getElementById(id);
+                if (el) {
+                    setTimeout(() => {
+                        el.classList.add("revealed");
+                    }, 120 + i * 180);
+                }
+            });
+        }
+
+        function closeSlip() {
+            document.getElementById("overlay").classList.remove("show");
+            document.body.style.overflow = "auto";
+        }
+    </script>
+</body>
+
+</html>
