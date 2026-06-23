@@ -765,7 +765,7 @@
         const RAW = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSAOJIeY75b9atH-tHTZdJu8IpgbQh96bQ6km_HRqbpaUl0k0OX9JzO7AjRowuIrugEoa4871qSDdTG/pub?output=csv";
         const URL = location.protocol === "file:" ? "https://api.allorigins.win/raw?url=" + encodeURIComponent(RAW) : RAW;
 
-        let all = [], filtered = [], page = 1, PER = 15, q = "";
+        let all = [], filtered = [], page = 1, PER = 10, q = "";
 
         Papa.parse(URL, {
             download: true, header: true, skipEmptyLines: true, complete(r) {
