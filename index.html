@@ -204,7 +204,6 @@
         /* ── A4 SHEET ── */
         #slip {
             width: 210mm;
-            min-height: 297mm;
             padding: 20mm;
             background: #fff;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, .25);
@@ -257,25 +256,26 @@
         }
 
         .payslip-month-title {
-            font-size: 0.85rem;
+            font-size: 0.78rem;
             color: #64748b;
-            text-transform: capitalize;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
             margin: 0;
         }
 
         .payslip-month-val {
-            font-size: 1.6rem;
-            font-weight: 800;
+            font-size: 1.15rem;
+            font-weight: 700;
             color: #0f172a;
             margin: 0;
-            line-height: 1.1;
+            line-height: 1.2;
         }
 
         /* Employee Info rows */
         .info-row {
             display: flex;
             margin-bottom: 8px;
-            font-size: 0.9rem;
+            font-size: 0.82rem;
         }
 
         .info-key {
@@ -290,34 +290,38 @@
 
         /* Green Pay Card (Top right) */
         .green-pay-box {
-            background-color: #f0fdf4;
-            border-left: 5px solid #16a34a;
-            padding: 20px;
+            background-color: #f8fafc;
+            border-left: 5px solid #1e293b;
+            padding: 16px;
             border-radius: 4px 12px 12px 4px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         .large-pay-val {
-            font-size: 1.8rem;
+            font-size: 1.35rem;
             font-weight: 700;
             color: #0f172a;
         }
 
         .pay-subtext {
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             color: #475569;
             margin-top: 2px;
         }
 
         .green-hr {
-            border-top: 1px solid #bbf7d0;
-            margin: 12px 0;
+            border-top: 1px solid #cbd5e1;
+            margin: 10px 0;
             opacity: 1;
         }
 
         .pay-days-row {
             display: flex;
             justify-content: space-between;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: #374151;
         }
 
@@ -330,7 +334,7 @@
         }
 
         .ledger-side {
-            padding: 20px;
+            padding: 16px 20px;
         }
 
         .ledger-header-row {
@@ -338,7 +342,7 @@
             justify-content: space-between;
             border-bottom: 1.5px solid #e2e8f0;
             padding-bottom: 8px;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
 
         .ledger-hdr-lbl {
@@ -350,12 +354,12 @@
 
         .ledger-table {
             width: 100%;
-            font-size: 0.9rem;
+            font-size: 0.82rem;
             border-collapse: collapse;
         }
 
         .ledger-table td {
-            padding: 10px 0;
+            padding: 8px 0;
             font-weight: 600;
             color: #0f172a;
         }
@@ -365,9 +369,9 @@
             background-color: #f8fafc;
             border: 1px solid #e2e8f0;
             border-radius: 8px;
-            padding: 15px 20px;
+            padding: 12px 20px;
             display: flex;
-            font-size: 0.9rem;
+            font-size: 0.82rem;
         }
 
         .totals-lbl {
@@ -380,40 +384,40 @@
         }
 
         .text-primary-custom {
-            color: #2563eb;
+            color: #0f172a;
         }
 
         .text-danger-custom {
-            color: #dc2626;
+            color: #0f172a;
         }
 
-        /* Green Highlights Bar (Total Net Payable) */
+        /* Grayscale Highlights Bar (Total Net Payable) */
         .net-payable-banner {
-            background-color: #e8f5e9;
-            border: 1px solid #c8e6c9;
+            background-color: #0f172a;
+            border: 1px solid #0f172a;
             border-radius: 8px;
-            padding: 16px 20px;
+            padding: 14px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
         .net-payable-title {
-            font-weight: 850;
-            font-size: 0.9rem;
-            color: #1b5e20;
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: #f8fafc;
         }
 
         .net-payable-subtitle {
-            font-size: 0.75rem;
-            color: #4e342e;
+            font-size: 0.72rem;
+            color: #94a3b8;
             margin-top: 2px;
         }
 
         .net-payable-value {
-            font-size: 1.6rem;
-            font-weight: 800;
-            color: #1b5e20;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #ffffff;
         }
 
         /* Footer */
@@ -445,9 +449,10 @@
             color: #64748b;
             border: 1px dashed var(--slate-300);
             border-radius: 6px;
-            padding: 6px 12px;
+            padding: 35px 16px 8px 16px;
             text-align: center;
             font-weight: 500;
+            min-width: 180px;
         }
 
         .sig-note {
@@ -457,6 +462,29 @@
             color: #94a3b8;
             margin-top: 4px;
             text-align: right;
+        }
+
+        .slip-footer-bottom {
+            margin-top: 30px;
+        }
+
+        .system-generated-footer {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .footer-line {
+            border-top: 1px solid var(--slate-300);
+            margin: 0 0 8px 0;
+            opacity: 0.6;
+        }
+
+        .footer-text {
+            font-size: 0.72rem;
+            color: #64748b;
+            font-weight: 600;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
         }
 
         /* ── PRINT ── */
@@ -499,8 +527,8 @@
             }
 
             .green-pay-box {
-                background-color: #f0fdf4 !important;
-                border-left: 5px solid #16a34a !important;
+                background-color: #f8fafc !important;
+                border-left: 5px solid #1e293b !important;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
@@ -520,20 +548,20 @@
             }
 
             .net-payable-banner {
-                background-color: #e8f5e9 !important;
-                border: 1px solid #c8e6c9 !important;
+                background-color: #0f172a !important;
+                border: 1px solid #0f172a !important;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
 
             .text-primary-custom {
-                color: #2563eb !important;
+                color: #0f172a !important;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
 
             .text-danger-custom {
-                color: #dc2626 !important;
+                color: #0f172a !important;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
@@ -557,6 +585,7 @@
         }
 
         @media (max-width: 768px) {
+
             .col-7,
             .col-5 {
                 width: 100% !important;
@@ -591,7 +620,8 @@
             <div class="d-flex justify-content-between align-items-start mb-4">
                 <div>
                     <img src="logo.png" alt="SYSCORP" style="height:40px;max-width:200px;object-fit:contain">
-                    <div style="font-size:.72rem;color:#64748b;margin-top:4px">// SOFTWARE DIVISION &amp; INFRASTRUCTURE</div>
+                    <div style="font-size:.72rem;color:#64748b;margin-top:4px">// SOFTWARE DIVISION &amp; INFRASTRUCTURE
+                    </div>
                 </div>
                 <span id="page-label" class="badge bg-light text-dark border" style="font-size:.75rem">Page 1</span>
             </div>
@@ -600,10 +630,12 @@
                 <div class="input-group">
                     <span class="input-group-text border-end-0">
                         <svg width="14" height="14" fill="#94a3b8" viewBox="0 0 16 16">
-                            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.118-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
+                            <path
+                                d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.118-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
                         </svg>
                     </span>
-                    <input type="text" id="q" class="form-control border-start-0" placeholder="Search by name or designation…" oninput="search(this.value)">
+                    <input type="text" id="q" class="form-control border-start-0"
+                        placeholder="Search by name or designation…" oninput="search(this.value)">
                 </div>
             </div>
 
@@ -640,10 +672,16 @@
 
                 <!-- Step 1: Header -->
                 <div class="slip-section slip-head" id="sec-head">
-                    <div>
-                        <h2 class="header-title-sys">SYSCORP</h2>
-                        <div class="think-simple">&lt;Think Simple/&gt;</div>
-                        <div class="address-text">JIPMER Main road, Pondicherry-605008</div>
+                    <div class="d-flex align-items-center gap-3">
+                        <img src="logo.png" alt="SYSCORP" style="height: 50px; max-width: 200px; object-fit: contain;">
+                        <div style="border-left: 2.5px solid var(--slate-300); padding-left: 15px;">
+                            <div class="think-simple" style="margin-top: 0; font-weight: 700; color: #1e293b;">&lt;Think
+                                Simple/&gt;</div>
+                            <div class="address-text" style="line-height: 1.35; font-weight: 500; font-size: 0.82rem;">
+                                No.37, Kamaraj Salai, Thattanchavady,<br>
+                                Puducherry - 605009
+                            </div>
+                        </div>
                     </div>
                     <div class="text-end">
                         <p class="payslip-month-title">Payslip for Month</p>
@@ -655,7 +693,8 @@
                 <div class="slip-section row g-3 mb-4" id="sec-info">
                     <div class="col-7">
                         <div class="emp-summary-section">
-                            <h6 class="fw-bold mb-3" style="font-size: 0.9rem; letter-spacing: 0.5px; color: #1e293b;">EMPLOYEE SUMMARY</h6>
+                            <h6 class="fw-bold mb-3" style="font-size: 0.9rem; letter-spacing: 0.5px; color: #1e293b;">
+                                EMPLOYEE SUMMARY</h6>
                             <div class="info-row">
                                 <div class="info-key">Employee Name</div>
                                 <div class="info-val" id="info-name">-</div>
@@ -680,12 +719,16 @@
                     </div>
                     <div class="col-5">
                         <div class="green-pay-box">
-                            <div class="large-pay-val" id="slip-net-top">₹ 0.00</div>
-                            <div class="pay-subtext">Employee Net Pay</div>
-                            <hr class="green-hr">
-                            <div class="pay-days-row">
-                                <span>Paid Day: <strong id="slip-paid">0</strong></span>
-                                <span>LOP Day: <strong id="slip-lop">0</strong></span>
+                            <div>
+                                <div class="large-pay-val" id="slip-net-top">₹ 0.00</div>
+                                <div class="pay-subtext">Employee Net Pay</div>
+                            </div>
+                            <div>
+                                <hr class="green-hr">
+                                <div class="pay-days-row">
+                                    <span>Paid Day: <strong id="slip-paid">0</strong></span>
+                                    <span>LOP Day: <strong id="slip-lop">0</strong></span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -743,16 +786,19 @@
                 </div>
 
                 <!-- Step 6: Footer -->
-                <div class="slip-section" id="sec-foot">
+                <div class="slip-section slip-footer-bottom" id="sec-foot">
                     <div class="slip-footer">
                         <div>
                             <div class="words-label">Net Salary In Words</div>
                             <div class="words-text" id="words">—</div>
                         </div>
                         <div>
-                            <div class="sig-box">Digitally Signed by SYSCORP HR</div>
-                            <div class="sig-note">System Generated Document</div>
+                            <div class="sig-box">Signed by SYSCORP HR</div>
                         </div>
+                    </div>
+                    <div class="system-generated-footer">
+                        <hr class="footer-line">
+                        <div class="footer-text">System Generated Document</div>
                     </div>
                 </div>
 
@@ -824,12 +870,13 @@
             document.getElementById("slip-paid").innerText = e["Paid Days"] || "0";
 
             // Earnings Table
-            const earns = ["Earned Basic", "Earned HRA", "Earned Conv.", "Earned Med.", "Earned Other"];
+            const earns = ["Earned Basic", "DA", "Earned HRA", "Earned Other"];
             const earnLabels = {
-                "Earned Basic": "Basic",
-                "Earned HRA": "Hra",
-                "Earned Conv.": "Conveyance",
-                "Earned Med.": "Medical",
+                "Earned Basic": "Earning",
+                "DA": "DA",
+                "Earned HRA": "HRA",
+
+
                 "Earned Other": "Other"
             };
             document.getElementById("slip-earnings").innerHTML = earns.map(x => `
@@ -840,16 +887,27 @@
             `).join('');
 
             // Deductions Table
-            const deds = ["EPF", "ESI"];
+            const deds = ["EPF", "ESI", "Late Deduction"];
+            const dedLabels = {
+                "EPF": "EPF",
+                "ESI": "ESI",
+                "Late Deduction": "Late Deduction"
+            };
             document.getElementById("slip-deductions").innerHTML = deds.map(d => `
                 <tr>
-                    <td class="ledger-item-name">${d}</td>
+                    <td class="ledger-item-name">${dedLabels[d] || d}</td>
                     <td class="text-end ledger-item-val">${fmt(e[d])}</td>
                 </tr>
             `).join('');
 
-            const gross = Math.round(parseFloat(e["Earned Gross"]) || 0);
-            const totalDeduct = Math.round(parseFloat(e["Total Deduct"]) || 0);
+            const earnedGross = parseFloat(e["Earned Gross"]) || 0;
+            const daVal = parseFloat(e["DA"]) || 0;
+            const gross = Math.round(earnedGross + daVal);
+
+            const totalDeductVal = parseFloat(e["Total Deduct"]) || 0;
+            const lateDeductVal = parseFloat(e["Late Deduction"]) || 0;
+            const totalDeduct = Math.round(totalDeductVal + lateDeductVal);
+
             const net = gross - totalDeduct;
 
             document.getElementById("slip-gross").innerText = gross.toLocaleString("en-IN");
