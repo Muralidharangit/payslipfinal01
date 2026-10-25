@@ -288,16 +288,16 @@
             font-weight: 600;
         }
 
-        /* Green Pay Card (Top right) */
+        /* Attendance Card (Top right) */
         .green-pay-box {
             background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
             border-left: 5px solid #1e293b;
             padding: 16px;
             border-radius: 4px 12px 12px 4px;
             height: 100%;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
         }
 
         .large-pay-val {
@@ -626,16 +626,25 @@
                 <span id="page-label" class="badge bg-light text-dark border" style="font-size:.75rem">Page 1</span>
             </div>
 
-            <div class="mb-4 search-box">
-                <div class="input-group">
-                    <span class="input-group-text border-end-0">
-                        <svg width="14" height="14" fill="#94a3b8" viewBox="0 0 16 16">
-                            <path
-                                d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.118-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
-                        </svg>
-                    </span>
-                    <input type="text" id="q" class="form-control border-start-0"
-                        placeholder="Search by name or designation…" oninput="search(this.value)">
+            <div class="row g-3 mb-4 align-items-center">
+                <div class="col-md-7 search-box">
+                    <div class="input-group">
+                        <span class="input-group-text border-end-0">
+                            <svg width="14" height="14" fill="#94a3b8" viewBox="0 0 16 16">
+                                <path
+                                    d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.118-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
+                            </svg>
+                        </span>
+                        <input type="text" id="q" class="form-control border-start-0"
+                            placeholder="Search by name, role or ID…" oninput="search(this.value)">
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white" style="font-size:0.78rem; font-weight:600; color:#64748b;">📅 Pay Month</span>
+                        <select id="month-select" class="form-select" style="font-size:0.85rem; font-weight:600; color:#0f172a;" onchange="onMonthChange(this.value)">
+                        </select>
+                    </div>
                 </div>
             </div>
 
@@ -663,6 +672,13 @@
                 <button class="btn-back" onclick="closeSlip()">
                     ← Back to Dashboard
                 </button>
+                <div class="d-flex align-items-center gap-2">
+                    <span style="color:#f8fafc; font-size:0.82rem; font-weight:500;">📅 Pay Month:</span>
+                    <select id="overlay-month-select" class="form-select form-select-sm"
+                        style="width: auto; min-width: 175px; font-weight:600; font-size:0.82rem; background:#fff;"
+                        onchange="onMonthChange(this.value)">
+                    </select>
+                </div>
                 <button class="btn-print" onclick="window.print()">
                     🖨 Print Payslip
                 </button>
@@ -719,16 +735,23 @@
                     </div>
                     <div class="col-5">
                         <div class="green-pay-box">
-                            <div>
-                                <div class="large-pay-val" id="slip-net-top">₹ 0.00</div>
-                                <div class="pay-subtext">Employee Net Pay</div>
+                            <h6 class="fw-bold mb-3" style="font-size: 0.9rem; letter-spacing: 0.5px; color: #1e293b;">
+                                ATTENDANCE SUMMARY</h6>
+                            <div class="info-row">
+                                <div class="info-key" style="width: 120px;">Working Days</div>
+                                <div class="info-val" id="slip-working-days">0</div>
                             </div>
-                            <div>
-                                <hr class="green-hr">
-                                <div class="pay-days-row">
-                                    <span>Paid Day: <strong id="slip-paid">0</strong></span>
-                                    <span>LOP Day: <strong id="slip-lop">0</strong></span>
-                                </div>
+                            <div class="info-row">
+                                <div class="info-key" style="width: 120px;">Paid Days</div>
+                                <div class="info-val" id="slip-paid">0</div>
+                            </div>
+                            <div class="info-row">
+                                <div class="info-key" style="width: 120px;">LOP Days</div>
+                                <div class="info-val" id="slip-lop">0</div>
+                            </div>
+                            <div class="info-row">
+                                <div class="info-key" style="width: 120px;">Leave Balance</div>
+                                <div class="info-val" id="slip-leave-bal">-</div>
                             </div>
                         </div>
                     </div>
@@ -811,19 +834,104 @@
         const RAW = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSAOJIeY75b9atH-tHTZdJu8IpgbQh96bQ6km_HRqbpaUl0k0OX9JzO7AjRowuIrugEoa4871qSDdTG/pub?output=csv";
         const URL = location.protocol === "file:" ? "https://api.allorigins.win/raw?url=" + encodeURIComponent(RAW) : RAW;
 
+        let rawData = [];
         let all = [], filtered = [], page = 1, PER = 10, q = "";
+        let currentMonth = localStorage.getItem("syscorp_selected_month") || "";
+        let monthColumnKey = null;
+
+        function buildMonthList() {
+            const list = new Set();
+
+            // 1. If Google Sheet has a month column, extract all unique months from sheet
+            if (monthColumnKey) {
+                rawData.forEach(r => {
+                    const m = (r[monthColumnKey] || "").trim();
+                    if (m) list.add(m);
+                });
+            }
+
+            // 2. Add standard past months back to 2024
+            const now = new Date();
+            const currYear = now.getFullYear();
+            for (let y = currYear; y >= 2024; y--) {
+                const maxM = (y === currYear) ? now.getMonth() : 11;
+                for (let m = maxM; m >= 0; m--) {
+                    const dt = new Date(y, m, 1);
+                    list.add(dt.toLocaleString("en-IN", { month: "long", year: "numeric" }));
+                }
+            }
+
+            // 3. Fallback / stored
+            if (currentMonth) list.add(currentMonth);
+
+            const arr = Array.from(list);
+            if (!currentMonth) currentMonth = arr[0];
+
+            function populateSelect(elId) {
+                const el = document.getElementById(elId);
+                if (!el) return;
+                el.innerHTML = arr.map(m => `<option value="${m}"${m === currentMonth ? " selected" : ""}>${m}</option>`).join("") +
+                    `<option value="__custom__">✏️ Custom Month...</option>`;
+            }
+            populateSelect("month-select");
+            populateSelect("overlay-month-select");
+        }
+
+        function onMonthChange(val) {
+            if (val === "__custom__") {
+                const customVal = prompt("Enter Pay Month and Year (e.g. September 2024):", currentMonth);
+                if (customVal && customVal.trim()) {
+                    currentMonth = customVal.trim();
+                }
+            } else {
+                currentMonth = val;
+            }
+            localStorage.setItem("syscorp_selected_month", currentMonth);
+            buildMonthList();
+
+            // Update open slip if visible
+            const sm = document.getElementById("slip-month");
+            if (sm) sm.textContent = currentMonth;
+            const ip = document.getElementById("info-period");
+            if (ip) ip.textContent = currentMonth;
+
+            applyMonthFilter();
+        }
+
+        function applyMonthFilter() {
+            if (monthColumnKey) {
+                all = rawData.filter(x => (x[monthColumnKey] || "").trim().toLowerCase() === currentMonth.trim().toLowerCase());
+                if (!all.length) {
+                    // Fallback to all data if month not found in sheet
+                    all = [...rawData];
+                }
+            } else {
+                all = [...rawData];
+            }
+            search(q);
+        }
 
         Papa.parse(URL, {
             download: true, header: true, skipEmptyLines: true, complete(r) {
-                all = r.data.filter(x => x["Emp Name"]);
-                filtered = [...all];
-                render();
+                rawData = r.data.filter(x => x["Emp Name"]);
+
+                // Detect if Google Sheet has a Month / Period column
+                const keys = rawData.length ? Object.keys(rawData[0]) : [];
+                monthColumnKey = keys.find(k => /^(month|pay\s*period|period|month\s*\/?\s*year)$/i.test(k.trim())) || null;
+
+                buildMonthList();
+                applyMonthFilter();
             }
         });
 
         function search(v) {
-            q = v.toLowerCase().trim(); page = 1;
-            filtered = !q ? [...all] : all.filter(e => (e["Emp Name"] || "").toLowerCase().includes(q) || (e["Designation"] || "").toLowerCase().includes(q) || (e["Emp.No"] || "").toString().includes(q));
+            q = (v !== undefined ? v : q).toLowerCase().trim();
+            page = 1;
+            filtered = !q ? [...all] : all.filter(e =>
+                (e["Emp Name"] || "").toLowerCase().includes(q) ||
+                (e["Designation"] || "").toLowerCase().includes(q) ||
+                (e["Emp.No"] || "").toString().includes(q)
+            );
             render();
         }
 
@@ -848,14 +956,72 @@
 
         function goPage(p) { page = p; render() }
 
-        function fmt(n) { return (parseFloat(n) || 0).toLocaleString("en-IN", { minimumFractionDigits: 0, maximumFractionDigits: 0 }) }
+        function fmt(n) {
+            if (n === null || n === undefined || n === "") return "0";
+            if (typeof n === "string" && n.trim() === "-") return "-";
+            const num = parseFloat(String(n).replace(/,/g, "").trim());
+            if (isNaN(num)) return n;
+            return num.toLocaleString("en-IN", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+        }
+
+        function numToWords(n) {
+            const num = parseFloat(String(n).replace(/,/g, "").trim());
+            if (isNaN(num) || num === 0) return "Zero";
+
+            const ones = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine",
+                "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"];
+            const tens = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
+
+            function convertLessThanThousand(val) {
+                let str = "";
+                if (val >= 100) {
+                    str += ones[Math.floor(val / 100)] + " Hundred ";
+                    val %= 100;
+                }
+                if (val >= 20) {
+                    str += tens[Math.floor(val / 10)] + " ";
+                    val %= 10;
+                }
+                if (val > 0) {
+                    str += ones[val] + " ";
+                }
+                return str.trim();
+            }
+
+            let integerPart = Math.floor(Math.abs(num));
+            const decimalPart = Math.round((Math.abs(num) - integerPart) * 100);
+
+            let words = "";
+            if (integerPart === 0) {
+                words = "Zero";
+            } else {
+                const crore = Math.floor(integerPart / 10000000);
+                integerPart %= 10000000;
+                const lakh = Math.floor(integerPart / 100000);
+                integerPart %= 100000;
+                const thousand = Math.floor(integerPart / 1000);
+                integerPart %= 1000;
+                const remainder = integerPart;
+
+                if (crore > 0) words += convertLessThanThousand(crore) + " Crore ";
+                if (lakh > 0) words += convertLessThanThousand(lakh) + " Lakh ";
+                if (thousand > 0) words += convertLessThanThousand(thousand) + " Thousand ";
+                if (remainder > 0) words += convertLessThanThousand(remainder) + " ";
+                words = words.trim();
+            }
+
+            if (decimalPart > 0) {
+                words += " and " + convertLessThanThousand(decimalPart) + " Paise";
+            }
+            return words;
+        }
 
         function openSlip(idx) {
             const e = all[idx];
             if (!e) return;
 
-            // Fill header Month
-            const payPeriodStr = new Date().toLocaleString("en-IN", { month: "long", year: "numeric" });
+            // Fill header Month & Pay Period
+            const payPeriodStr = (monthColumnKey && e[monthColumnKey]) ? e[monthColumnKey] : currentMonth;
             document.getElementById("slip-month").textContent = payPeriodStr;
             document.getElementById("info-period").textContent = payPeriodStr;
 
@@ -865,28 +1031,40 @@
             document.getElementById("info-id").textContent = e["Emp.No"] || "-";
             document.getElementById("info-doj").textContent = e["DOJ"] || "-";
 
-            // Fill Figures
-            document.getElementById("slip-lop").innerText = e["LOP"] || "0";
-            document.getElementById("slip-paid").innerText = e["Paid Days"] || "0";
+            // Fill Attendance Summary
+            const workingDays = e["Working Days"] || e["Std Days"] || "0";
+            const paidDays = e["Paid Days"] || "0";
+            const lopDays = e["LOP"] || "0";
+            const slBal = (e["SL Bal"] !== undefined && e["SL Bal"] !== "") ? e["SL Bal"] : "0";
+            const clBal = (e["CL Bal"] !== undefined && e["CL Bal"] !== "") ? e["CL Bal"] : "0";
 
-            // Earnings Table
-            const earns = ["Earned Basic", "DA", "Earned HRA", "Earned Other"];
+            const elWork = document.getElementById("slip-working-days");
+            if (elWork) elWork.innerText = workingDays;
+            const elPaid = document.getElementById("slip-paid");
+            if (elPaid) elPaid.innerText = paidDays;
+            const elLop = document.getElementById("slip-lop");
+            if (elLop) elLop.innerText = lopDays;
+            const elLeave = document.getElementById("slip-leave-bal");
+            if (elLeave) elLeave.innerText = `SL: ${slBal} | CL: ${clBal}`;
+
+            // Earnings Table (Basic, HRA, Other Allowance - No DA, No 'Earning' label)
+            const earns = ["Earned Basic", "Earned HRA", "Earned Other"];
             const earnLabels = {
-                "Earned Basic": "Earning",
-                "DA": "DA",
+                "Earned Basic": "Basic",
                 "Earned HRA": "HRA",
-
-
-                "Earned Other": "Other"
+                "Earned Other": "Other Allowance"
             };
-            document.getElementById("slip-earnings").innerHTML = earns.map(x => `
+            document.getElementById("slip-earnings").innerHTML = earns.map(x => {
+                const val = (x === "Earned Other") ? (e["Earned Other"] || e["Other Allow."] || 0) : e[x];
+                return `
                 <tr>
                     <td class="ledger-item-name">${earnLabels[x] || x}</td>
-                    <td class="text-end ledger-item-val">${fmt(e[x])}</td>
+                    <td class="text-end ledger-item-val">${fmt(val)}</td>
                 </tr>
-            `).join('');
+            `;
+            }).join('');
 
-            // Deductions Table
+            // Deductions Table (EPF, ESI, Late Deduction)
             const deds = ["EPF", "ESI", "Late Deduction"];
             const dedLabels = {
                 "EPF": "EPF",
@@ -900,21 +1078,19 @@
                 </tr>
             `).join('');
 
-            const earnedGross = parseFloat(e["Earned Gross"]) || 0;
-            const daVal = parseFloat(e["DA"]) || 0;
-            const gross = Math.round(earnedGross + daVal);
+            // Direct values from Google Sheet without addition or subtraction
+            const gross = e["Earned Gross"] ?? 0;
+            const totalDeduct = e["Total Deduct"] ?? 0;
+            const net = e["Net Salary"] ?? 0;
 
-            const totalDeductVal = parseFloat(e["Total Deduct"]) || 0;
-            const lateDeductVal = parseFloat(e["Late Deduction"]) || 0;
-            const totalDeduct = Math.round(totalDeductVal + lateDeductVal);
+            document.getElementById("slip-gross").innerText = fmt(gross);
+            document.getElementById("slip-total-deduct").innerText = fmt(totalDeduct);
+            
+            const netTopEl = document.getElementById("slip-net-top");
+            if (netTopEl) netTopEl.innerText = "₹ " + fmt(net);
 
-            const net = gross - totalDeduct;
-
-            document.getElementById("slip-gross").innerText = gross.toLocaleString("en-IN");
-            document.getElementById("slip-total-deduct").innerText = totalDeduct.toLocaleString("en-IN");
-            document.getElementById("slip-net-top").innerText = "₹ " + net.toLocaleString("en-IN");
-            document.getElementById("slip-net-final").innerText = "₹ " + net.toLocaleString("en-IN");
-            document.getElementById("words").innerText = "Indian Rupees " + net.toLocaleString("en-IN") + " Only";
+            document.getElementById("slip-net-final").innerText = "₹ " + fmt(net);
+            document.getElementById("words").innerText = "Indian Rupees " + numToWords(net) + " Only";
 
             // Show overlay
             const ov = document.getElementById("overlay");
